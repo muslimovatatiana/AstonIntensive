@@ -9,6 +9,13 @@
         <appender-ref ref="STDOUT" />
     </root>
 
-    <logger name="org.hibernate.SQL" level="OFF" />
-    <logger name="org.hibernate.orm.results.loading" level="OFF" />
+    <logger name="org.hibernate.SQL" level="DEBUG" />
+
+    <logger name="org.hibernate.stat" level="DEBUG" />
+
+    <logger name="org.hibernate.orm.results.loading" level="DEBUG" />
+
+    <logger name="org.hibernate.orm.descriptor.sql" level="TRACE" />
+
+    <logger name="ru.aston.hometask2.dao.impl.UserDaoImpl" level="OFF"/>
 </configuration>

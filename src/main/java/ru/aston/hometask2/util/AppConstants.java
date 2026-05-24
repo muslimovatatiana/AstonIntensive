@@ -15,7 +15,6 @@ public final class AppConstants {
     public static final String MENU_ITEM_DELETE_USER_CONST_NUM = "5";
     public static final String MENU_ITEM_EXIT_CONST_NUM = "0";
 
-
     public static final String CONNECTION_URL = "jdbc:postgresql://localhost:5433/user_service_db";
     public static final String CONNECTION_USER = "postgres";
     public static final String CONNECTION_PASSWORD = "postgres";
@@ -24,4 +23,6 @@ public final class AppConstants {
     public static final String CHANGELOG_FILE = "db/changelog/db.changelog-master.xml";
 
     public static final String UPDATE_CMD_ARG = "database";
+
+    public static final String DB_UNIQUE_EMAIL_CONSTRAINT = "users_email_key";
 }

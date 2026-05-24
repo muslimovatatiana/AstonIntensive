@@ -4,6 +4,20 @@ import ru.aston.hometask2.models.User;
 import ru.aston.hometask2.services.UserService;
 import java.util.List;
 
+import static ru.aston.hometask2.util.AppMessages.MSG_UPDATE_SUCCESS;
+import static ru.aston.hometask2.util.AppMessages.MSG_USER_LIST_EMPTY;
+import static ru.aston.hometask2.util.AppMessages.MSG_USER_LIST_HEADER;
+import static ru.aston.hometask2.util.AppMessages.PREFIX_ERROR;
+import static ru.aston.hometask2.util.AppMessages.PREFIX_INFO;
+import static ru.aston.hometask2.util.AppMessages.PREFIX_SYSTEM_ERROR;
+import static ru.aston.hometask2.util.AppMessages.PREFIX_VALIDATION_ERROR;
+import static ru.aston.hometask2.util.AppMessages.getMsgDeleteError;
+import static ru.aston.hometask2.util.AppMessages.getMsgDeleteSuccess;
+import static ru.aston.hometask2.util.AppMessages.getMsgFindSuccess;
+import static ru.aston.hometask2.util.AppMessages.getMsgLoadListError;
+import static ru.aston.hometask2.util.AppMessages.getMsgRegisterSuccess;
+import static ru.aston.hometask2.util.AppMessages.getMsgUpdateError;
+
 public class UserController {
 
     private final UserService userService;
@@ -20,22 +34,22 @@ public class UserController {
                     .age(age)
                     .build();
             Long generatedId = userService.registerUser(user);
-            System.out.println("[УСПЕХ]: Пользователь успешно зарегистрирован с ID: " + generatedId);
+            System.out.println(getMsgRegisterSuccess(generatedId));
         } catch (IllegalArgumentException e) {
-            System.out.println("[ОШИБКА ВАЛИДАЦИИ]: " + e.getMessage());
+            System.out.println(PREFIX_VALIDATION_ERROR + e.getMessage());
         } catch (Exception e) {
-            System.out.println("[СИСТЕМНАЯ ОШИБКА]: " + e.getMessage());
+            System.out.println(PREFIX_SYSTEM_ERROR + e.getMessage());
         }
     }
 
     public void showUserById(Long id) {
         try {
             User user = userService.getUserById(id);
-            System.out.println("Найден пользователь: " + user);
+            System.out.println(getMsgFindSuccess(user));
         } catch (IllegalArgumentException e) {
-            System.out.println("[ИНФО]: " + e.getMessage());
+            System.out.println(PREFIX_INFO + e.getMessage());
         } catch (Exception e) {
-            System.out.println("[ОШИБКА]: " + e.getMessage());
+            System.out.println(PREFIX_ERROR + e.getMessage());
         }
     }
 
@@ -43,13 +57,13 @@ public class UserController {
         try {
             List<User> users = userService.getAllUsers();
             if (users.isEmpty()) {
-                System.out.println("Список пользователей пока пуст.");
+                System.out.println(MSG_USER_LIST_EMPTY);
             } else {
-                System.out.println("=== СПИСОК ПОЛЬЗОВАТЕЛЕЙ ===");
+                System.out.println(MSG_USER_LIST_HEADER);
                 users.forEach(System.out::println);
             }
         } catch (Exception e) {
-            System.out.println("[ОШИБКА]: Не удалось загрузить список: " + e.getMessage());
+            System.out.println(getMsgLoadListError(e.getMessage()));
         }
     }
 
@@ -62,22 +76,22 @@ public class UserController {
                     .age(age)
                     .build();
             userService.updateUser(user);
-            System.out.println("[УСПЕХ]: Данные пользователя обновлены!");
+            System.out.println(MSG_UPDATE_SUCCESS);
         } catch (IllegalArgumentException e) {
-            System.out.println("[ОШИБКА ВАЛИДАЦИИ]: " + e.getMessage());
+            System.out.println(PREFIX_VALIDATION_ERROR + e.getMessage());
         } catch (Exception e) {
-            System.out.println("[ОШИБКА]: Не удалось обновить: " + e.getMessage());
+            System.out.println(getMsgUpdateError(e.getMessage()));
         }
     }
 
     public void deleteUser(Long id) {
         try {
             userService.removeUserById(id);
-            System.out.println("[УСПЕХ]: Пользователь с ID " + id + " удален.");
+            System.out.println(getMsgDeleteSuccess(id));
         } catch (IllegalArgumentException e) {
-            System.out.println("[ОШИБКА]: " + e.getMessage());
+            System.out.println(PREFIX_ERROR + e.getMessage());
         } catch (Exception e) {
-            System.out.println("[ОШИБКА]: Не удалось удалить: " + e.getMessage());
+            System.out.println(getMsgDeleteError(e.getMessage()));
         }
     }
 }

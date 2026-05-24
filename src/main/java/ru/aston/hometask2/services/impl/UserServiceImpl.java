@@ -4,28 +4,53 @@ import ru.aston.hometask2.dao.UserDao;
 import ru.aston.hometask2.models.User;
 import ru.aston.hometask2.services.UserService;
 import java.util.List;
+import java.util.regex.Pattern;
+
+import static ru.aston.hometask2.util.AppConstants.DB_UNIQUE_EMAIL_CONSTRAINT;
+import static ru.aston.hometask2.util.AppConstants.EMAIL_REGEX;
+import static ru.aston.hometask2.util.AppConstants.MIN_USER_AGE;
+import static ru.aston.hometask2.util.AppConstants.MAX_USER_AGE;
+import static ru.aston.hometask2.util.AppMessages.ERROR_DELETE_ID_INVALID;
+import static ru.aston.hometask2.util.AppMessages.ERROR_EMAIL_FORMAT;
+import static ru.aston.hometask2.util.AppMessages.ERROR_ID_POSITIVE;
+import static ru.aston.hometask2.util.AppMessages.ERROR_NAME_EMPTY;
+import static ru.aston.hometask2.util.AppMessages.ERROR_UPDATE_ID_INVALID;
+import static ru.aston.hometask2.util.AppMessages.ERROR_USER_NULL;
+import static ru.aston.hometask2.util.AppMessages.getErrorAgeRange;
+import static ru.aston.hometask2.util.AppMessages.getErrorEmailOccupied;
+import static ru.aston.hometask2.util.AppMessages.getErrorEmailRegistered;
+import static ru.aston.hometask2.util.AppMessages.getErrorUserNotFound;
 
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
+    private final Pattern emailPattern;
 
     public UserServiceImpl(UserDao userDao) {
         this.userDao = userDao;
+        this.emailPattern = Pattern.compile(EMAIL_REGEX);
     }
 
     @Override
     public Long registerUser(User user) {
         validateUser(user);
-        return userDao.save(user);
+        try {
+            return userDao.save(user);
+        } catch (RuntimeException e) {
+            if (isDuplicateEmailException(e)) {
+                throw new IllegalArgumentException(getErrorEmailRegistered(user.getEmail()));
+            }
+            throw e;
+        }
     }
 
     @Override
     public User getUserById(Long id) {
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException("ID пользователя должен быть положительным числом");
+        if (isIncorrectId(id)) {
+            throw new IllegalArgumentException(ERROR_ID_POSITIVE);
         }
         return userDao.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Пользователь с ID " + id + " не найден"));
+                .orElseThrow(() -> new IllegalArgumentException(getErrorUserNotFound(id)));
     }
 
     @Override
@@ -35,33 +60,71 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(User user) {
-        if (user.getId() == null || user.getId() <= 0) {
-            throw new IllegalArgumentException("Некорректный ID пользователя для обновления");
+        if (isIncorrectId(user.getId())) {
+            throw new IllegalArgumentException(ERROR_UPDATE_ID_INVALID);
         }
         validateUser(user);
-        userDao.update(user);
+        try {
+            userDao.update(user);
+        } catch (RuntimeException e) {
+            if (isDuplicateEmailException(e)) {
+                throw new IllegalArgumentException(getErrorEmailOccupied(user.getEmail()));
+            }
+            throw e;
+        }
     }
 
     @Override
     public void removeUserById(Long id) {
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException("Некорректный ID пользователя для удаления!");
+        if (isIncorrectId(id)) {
+            throw new IllegalArgumentException(ERROR_DELETE_ID_INVALID);
         }
         userDao.deleteById(id);
     }
 
     private void validateUser(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("Объект пользователя не может быть null!");
+        if (isIncorrectUser(user)) {
+            throw new IllegalArgumentException(ERROR_USER_NULL);
         }
-        if (user.getName() == null || user.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Имя пользователя не может быть пустым!");
+        if (isIncorrectName(user.getName())) {
+            throw new IllegalArgumentException(ERROR_NAME_EMPTY);
         }
-        if (user.getEmail() == null || !user.getEmail().contains("@")) {
-            throw new IllegalArgumentException("Некорректный формат email адреса!");
+        if (isIncorrectEmail(user.getEmail())) {
+            throw new IllegalArgumentException(ERROR_EMAIL_FORMAT);
         }
-        if (user.getAge() == null || user.getAge() < 0 || user.getAge() > 150) {
-            throw new IllegalArgumentException("Возраст должен быть в диапазоне от 0 до 150 лет!");
+        if (isIncorrectAge(user.getAge())) {
+            throw new IllegalArgumentException(getErrorAgeRange(MIN_USER_AGE, MAX_USER_AGE));
         }
+    }
+
+    private boolean isIncorrectUser(User user) {
+        return user == null;
+    }
+
+    private boolean isIncorrectId(Long id) {
+        return id == null || id <= 0;
+    }
+
+    private boolean isIncorrectName(String name) {
+        return name == null || name.trim().isEmpty();
+    }
+
+    private boolean isIncorrectEmail(String email) {
+        return email == null || !emailPattern.matcher(email).matches();
+    }
+
+    private boolean isIncorrectAge(Integer age) {
+        return age == null || age < MIN_USER_AGE || age > MAX_USER_AGE;
+    }
+
+    private boolean isDuplicateEmailException(Throwable t) {
+        while (t != null) {
+            String message = t.getMessage();
+            if (message != null && message.contains(DB_UNIQUE_EMAIL_CONSTRAINT)) {
+                return true;
+            }
+            t = t.getCause();
+        }
+        return false;
     }
 }

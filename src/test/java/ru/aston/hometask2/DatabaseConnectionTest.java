@@ -4,17 +4,15 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class DatabaseConnectionTest {
 
     @Test
     public void shouldConnectToDatabase() {
-        SessionFactory sessionFactory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .buildSessionFactory();
-
-        assertNotNull(sessionFactory);
-
-        sessionFactory.close();
+        try (SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory()) {
+            assertNotNull(sessionFactory, "Фабрика сессий не должна быть null");
+            assertFalse(sessionFactory.isClosed(), "Фабрика сессий должна быть открыта");
+        }
     }
 }
