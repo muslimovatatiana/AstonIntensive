@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+<changeSet id="1-create-users-sequence-and-table" author="muslimova_t">
+    <createSequence sequenceName="user_id_seq" startValue="1" incrementBy="1"/>
+
+    <createTable tableName="users">
+        <column name="id" type="BIGINT" defaultValueComputed="nextval('user_id_seq')">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+        <column name="name" type="VARCHAR(255)">
+            <constraints nullable="false"/>
+        </column>
+        <column name="email" type="VARCHAR(255)">
+            <constraints nullable="false" unique="true"/>
+        </column>
+        <column name="age" type="INT">
+            <constraints nullable="false"/>
+        </column>
+        <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+
+    <sql>
+        <![CDATA[
+                ALTER TABLE users ADD CONSTRAINT check_user_age CHECK (age >= 0 AND age <= 150);
+                ALTER TABLE users ADD CONSTRAINT check_user_name CHECK (length(trim(name)) > 0);
+                ALTER TABLE users ADD CONSTRAINT check_user_email CHECK (email LIKE '%_@__%.__%');
+            ]]>
+    </sql>
+
+</changeSet>
+</databaseChangeLog>

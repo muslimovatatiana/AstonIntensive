@@ -1,9 +1,9 @@
 version: '3.3'
 
 services:
-  postgres_docker:
+  user_service_db:
     image: postgres:16
-    container_name: aston-intensive-postgres
+    container_name: aston-intensive-postgres-main
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -11,7 +11,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata_main:/var/lib/postgresql/data
 
 volumes:
-  pgdata:
+  pgdata_main:
