@@ -1,0 +1,25 @@
+<hibernate-configuration>
+    <session-factory>
+        <property name="connection.driver_class">org.postgresql.Driver</property>
+        <property name="connection.url">jdbc:postgresql://localhost:5433/user_service_db</property>
+        <property name="connection.username">postgres</property>
+        <property name="connection.password">postgres</property>
+
+        <property name="show_sql">false</property>
+        <property name="format_sql">true</property>
+        <property name="use_sql_comments">false</property>
+        <property name="hibernate.current_session_context_class">thread</property>
+
+        <property name="hibernate.default_schema">public</property>
+        <property name="hbm2ddl.auto">validate</property>
+
+        <property name="connection.provider_class">org.hibernate.hikaricp.internal.HikariCPConnectionProvider</property>
+        <property name="hibernate.hikari.maximumPoolSize">2</property>
+        <property name="hibernate.hikari.minimumIdle">2</property>
+        <property name="hibernate.hikari.connectionTimeout">30000</property>
+        <property name="hibernate.hikari.maxLifetime">1800000</property>
+        <property name="hibernate.generate_statistics">true</property>
+
+        <mapping class="ru.aston.hometask2.models.User"/>
+    </session-factory>
+</hibernate-configuration>
