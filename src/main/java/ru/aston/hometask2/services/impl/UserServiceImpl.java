@@ -1,6 +1,9 @@
 package ru.aston.hometask2.services.impl;
 
 import ru.aston.hometask2.dao.UserDao;
+import ru.aston.hometask2.exception.impl.UserAlreadyExistsException;
+import ru.aston.hometask2.exception.impl.UserNotFoundException;
+import ru.aston.hometask2.exception.impl.UserValidationException;
 import ru.aston.hometask2.models.User;
 import ru.aston.hometask2.services.UserService;
 import java.util.List;
@@ -38,7 +41,7 @@ public class UserServiceImpl implements UserService {
             return userDao.save(user);
         } catch (RuntimeException e) {
             if (isDuplicateEmailException(e)) {
-                throw new IllegalArgumentException(getErrorEmailRegistered(user.getEmail()));
+                throw new UserAlreadyExistsException(getErrorEmailRegistered(user.getEmail()));
             }
             throw e;
         }
@@ -47,10 +50,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(Long id) {
         if (isIncorrectId(id)) {
-            throw new IllegalArgumentException(ERROR_ID_POSITIVE);
+            throw new UserValidationException(ERROR_ID_POSITIVE);
         }
         return userDao.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(getErrorUserNotFound(id)));
+                .orElseThrow(() -> new UserNotFoundException(getErrorUserNotFound(id)));
     }
 
     @Override
@@ -61,14 +64,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(User user) {
         if (isIncorrectId(user.getId())) {
-            throw new IllegalArgumentException(ERROR_UPDATE_ID_INVALID);
+            throw new UserValidationException(ERROR_UPDATE_ID_INVALID);
         }
         validateUser(user);
         try {
             userDao.update(user);
         } catch (RuntimeException e) {
             if (isDuplicateEmailException(e)) {
-                throw new IllegalArgumentException(getErrorEmailOccupied(user.getEmail()));
+                throw new UserAlreadyExistsException(getErrorEmailOccupied(user.getEmail()));
             }
             throw e;
         }
@@ -77,23 +80,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public void removeUserById(Long id) {
         if (isIncorrectId(id)) {
-            throw new IllegalArgumentException(ERROR_DELETE_ID_INVALID);
+            throw new UserValidationException(ERROR_DELETE_ID_INVALID);
         }
         userDao.deleteById(id);
     }
 
     private void validateUser(User user) {
         if (isIncorrectUser(user)) {
-            throw new IllegalArgumentException(ERROR_USER_NULL);
+            throw new UserValidationException(ERROR_USER_NULL);
         }
         if (isIncorrectName(user.getName())) {
-            throw new IllegalArgumentException(ERROR_NAME_EMPTY);
+            throw new UserValidationException(ERROR_NAME_EMPTY);
         }
         if (isIncorrectEmail(user.getEmail())) {
-            throw new IllegalArgumentException(ERROR_EMAIL_FORMAT);
+            throw new UserValidationException(ERROR_EMAIL_FORMAT);
         }
         if (isIncorrectAge(user.getAge())) {
-            throw new IllegalArgumentException(getErrorAgeRange(MIN_USER_AGE, MAX_USER_AGE));
+            throw new UserValidationException(getErrorAgeRange(MIN_USER_AGE, MAX_USER_AGE));
         }
     }
 

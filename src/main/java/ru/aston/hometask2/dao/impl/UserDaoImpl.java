@@ -5,6 +5,7 @@ import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.aston.hometask2.dao.UserDao;
+import ru.aston.hometask2.exception.impl.UserNotFoundException;
 import ru.aston.hometask2.models.User;
 import ru.aston.hometask2.util.HibernateUtil;
 import java.util.List;
@@ -76,11 +77,11 @@ public class UserDaoImpl implements UserDao {
                     .executeUpdate();
 
             if (updatedRows == 0) {
-                throw new IllegalArgumentException(getErrorDaoUserNotFound(id));
+                throw new UserNotFoundException(getErrorDaoUserNotFound(id));
             }
 
             transaction.commit();
-        } catch (IllegalArgumentException e) {
+        } catch (UserNotFoundException e) {
             if (transaction != null && transaction.getStatus().canRollback()) {
                 try {
                     transaction.rollback();
@@ -105,18 +106,27 @@ public class UserDaoImpl implements UserDao {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            User proxyUser = session.getReference(User.class, id);
-            session.remove(proxyUser);
+
+            int deletedRows = session.createMutationQuery("delete from User where id = :id")
+                    .setParameter("id", id)
+                    .executeUpdate();
+
+            if (deletedRows == 0) {
+                throw new UserNotFoundException(getErrorDaoUserNotFound(id));
+            }
+
             transaction.commit();
+        } catch (UserNotFoundException e) {
+            if (transaction != null && transaction.getStatus().canRollback()) {
+                try { transaction.rollback(); } catch (Exception ignored) {}
+            }
+            throw e;
         } catch (Exception e) {
             log.error(getErrorDaoDelete(id), e);
             if (transaction != null && transaction.isActive() && transaction.getStatus().canRollback()) {
-                try {
-                    transaction.rollback();
-                } catch (Exception ignored) {
-                }
+                try { transaction.rollback(); } catch (Exception ignored) {}
             }
-            throw new IllegalArgumentException(getErrorDaoDelete(id));
+            throw new RuntimeException(getErrorDaoDelete(id), e);
         }
     }
 }

@@ -48,11 +48,10 @@ public final class AppMessages {
     public static final String PREFIX_VALIDATION_ERROR = "[ОШИБКА ВАЛИДАЦИИ]: ";
     public static final String PREFIX_SYSTEM_ERROR = "[СИСТЕМНАЯ ОШИБКА]: ";
     public static final String PREFIX_ERROR = "[ОШИБКА]: ";
-    public static final String PREFIX_INFO = "[ИНФО]: ";
 
     public static final String MSG_USER_LIST_EMPTY = "Список пользователей пока пуст.";
     public static final String MSG_USER_LIST_HEADER = "=== СПИСОК ПОЛЬЗОВАТЕЛЕЙ ===";
-    public static final String MSG_UPDATE_SUCCESS = PREFIX_SUCCESS + "Данные пользователя обновлены!";
+    public static final String MSG_UPDATE_SUCCESS = "Данные пользователя обновлены!";
 
     public static final String ERROR_DAO_FIND_ALL = "Не удалось получить список всех пользователей";
     public static final String ERROR_DAO_SAVE = "Не удалось сохранить пользователя в БД";
@@ -80,7 +79,7 @@ public final class AppMessages {
     }
 
     public static String getMsgRegisterSuccess(Long id) {
-        return PREFIX_SUCCESS + "Пользователь успешно зарегистрирован с ID: " + id;
+        return "Пользователь успешно зарегистрирован с ID: " + id;
     }
 
     public static String getMsgFindSuccess(Object user) {
@@ -88,11 +87,11 @@ public final class AppMessages {
     }
 
     public static String getMsgUpdateError(String details) {
-        return PREFIX_ERROR + "Не удалось обновить: " + details;
+        return "Не удалось обновить: " + details;
     }
 
     public static String getMsgDeleteSuccess(Long id) {
-        return PREFIX_SUCCESS + "Пользователь с ID " + id + " удален.";
+        return "Пользователь с ID " + id + " удален.";
     }
 
     public static String getErrorDaoFindById(Long id) {
@@ -112,10 +111,10 @@ public final class AppMessages {
     }
 
     public static String getMsgLoadListError(String details) {
-        return PREFIX_ERROR + "Не удалось загрузить список пользователей: " + details;
+        return "Не удалось загрузить список пользователей: " + details;
     }
 
     public static String getMsgDeleteError(String details) {
-        return PREFIX_ERROR + "Не удалось удалить пользователя: " + details;
+        return "Не удалось удалить пользователя: " + details;
     }
 }

@@ -15,7 +15,6 @@ public final class HibernateUtil {
 
     private static SessionFactory buildSessionFactory() {
         try {
-            // .configure() автоматически ищет файл hibernate.cfg.xml в resources
             return new Configuration()
                     .configure()
                     .buildSessionFactory();

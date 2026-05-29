@@ -1,5 +1,8 @@
 package ru.aston.hometask2.controllers;
 
+import ru.aston.hometask2.exception.impl.UserAlreadyExistsException;
+import ru.aston.hometask2.exception.impl.UserNotFoundException;
+import ru.aston.hometask2.exception.impl.UserValidationException;
 import ru.aston.hometask2.models.User;
 import ru.aston.hometask2.services.UserService;
 import java.util.List;
@@ -8,7 +11,7 @@ import static ru.aston.hometask2.util.AppMessages.MSG_UPDATE_SUCCESS;
 import static ru.aston.hometask2.util.AppMessages.MSG_USER_LIST_EMPTY;
 import static ru.aston.hometask2.util.AppMessages.MSG_USER_LIST_HEADER;
 import static ru.aston.hometask2.util.AppMessages.PREFIX_ERROR;
-import static ru.aston.hometask2.util.AppMessages.PREFIX_INFO;
+import static ru.aston.hometask2.util.AppMessages.PREFIX_SUCCESS;
 import static ru.aston.hometask2.util.AppMessages.PREFIX_SYSTEM_ERROR;
 import static ru.aston.hometask2.util.AppMessages.PREFIX_VALIDATION_ERROR;
 import static ru.aston.hometask2.util.AppMessages.getMsgDeleteError;
@@ -34,9 +37,11 @@ public class UserController {
                     .age(age)
                     .build();
             Long generatedId = userService.registerUser(user);
-            System.out.println(getMsgRegisterSuccess(generatedId));
-        } catch (IllegalArgumentException e) {
+            System.out.println(PREFIX_SUCCESS + getMsgRegisterSuccess(generatedId));
+        } catch (UserValidationException e) {
             System.out.println(PREFIX_VALIDATION_ERROR + e.getMessage());
+        } catch (UserAlreadyExistsException e) {
+            System.out.println(PREFIX_ERROR + e.getMessage());
         } catch (Exception e) {
             System.out.println(PREFIX_SYSTEM_ERROR + e.getMessage());
         }
@@ -45,11 +50,13 @@ public class UserController {
     public void showUserById(Long id) {
         try {
             User user = userService.getUserById(id);
-            System.out.println(getMsgFindSuccess(user));
-        } catch (IllegalArgumentException e) {
-            System.out.println(PREFIX_INFO + e.getMessage());
-        } catch (Exception e) {
+            System.out.println(PREFIX_SUCCESS + getMsgFindSuccess(user));
+        } catch (UserValidationException e) {
+            System.out.println(PREFIX_VALIDATION_ERROR + e.getMessage());
+        } catch (UserNotFoundException e) {
             System.out.println(PREFIX_ERROR + e.getMessage());
+        } catch (Exception e) {
+            System.out.println(PREFIX_SYSTEM_ERROR + e.getMessage());
         }
     }
 
@@ -57,13 +64,13 @@ public class UserController {
         try {
             List<User> users = userService.getAllUsers();
             if (users.isEmpty()) {
-                System.out.println(MSG_USER_LIST_EMPTY);
+                System.out.println(PREFIX_SUCCESS + MSG_USER_LIST_EMPTY);
             } else {
-                System.out.println(MSG_USER_LIST_HEADER);
+                System.out.println(PREFIX_SUCCESS + MSG_USER_LIST_HEADER);
                 users.forEach(System.out::println);
             }
         } catch (Exception e) {
-            System.out.println(getMsgLoadListError(e.getMessage()));
+            System.out.println(PREFIX_SYSTEM_ERROR + getMsgLoadListError(e.getMessage()));
         }
     }
 
@@ -76,22 +83,26 @@ public class UserController {
                     .age(age)
                     .build();
             userService.updateUser(user);
-            System.out.println(MSG_UPDATE_SUCCESS);
-        } catch (IllegalArgumentException e) {
+            System.out.println(PREFIX_SUCCESS + MSG_UPDATE_SUCCESS);
+        } catch (UserValidationException e) {
             System.out.println(PREFIX_VALIDATION_ERROR + e.getMessage());
+        } catch (UserNotFoundException | UserAlreadyExistsException e) {
+            System.out.println(PREFIX_ERROR + e.getMessage());
         } catch (Exception e) {
-            System.out.println(getMsgUpdateError(e.getMessage()));
+            System.out.println(PREFIX_SYSTEM_ERROR + getMsgUpdateError(e.getMessage()));
         }
     }
 
     public void deleteUser(Long id) {
         try {
             userService.removeUserById(id);
-            System.out.println(getMsgDeleteSuccess(id));
-        } catch (IllegalArgumentException e) {
+            System.out.println(PREFIX_SUCCESS + getMsgDeleteSuccess(id));
+        } catch (UserValidationException e) {
+            System.out.println(PREFIX_VALIDATION_ERROR + e.getMessage());
+        } catch (UserNotFoundException e) {
             System.out.println(PREFIX_ERROR + e.getMessage());
         } catch (Exception e) {
-            System.out.println(getMsgDeleteError(e.getMessage()));
+            System.out.println(PREFIX_SYSTEM_ERROR + getMsgDeleteError(e.getMessage()));
         }
     }
 }
