@@ -57,6 +57,7 @@ public final class AppMessages {
     public static final String ERROR_DAO_SAVE = "Не удалось сохранить пользователя в БД";
 
     public static final String ERROR_SESSION_FACTORY_CREATION = "Initial SessionFactory creation failed: ";
+    public static final String ERROR_TEST_SESSION_FACTORY_CREATION = "Initial test SessionFactory creation failed: ";
 
     public static String getAgeRangeError(int min, int max) {
         return "Число должно быть в диапазоне от " + min + " до " + max + ".";
