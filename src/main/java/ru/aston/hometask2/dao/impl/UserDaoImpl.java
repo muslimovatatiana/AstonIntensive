@@ -1,6 +1,7 @@
 package ru.aston.hometask2.dao.impl;
 
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +22,20 @@ import static ru.aston.hometask2.util.AppMessages.getErrorDaoUserNotFound;
 public class UserDaoImpl implements UserDao {
     private static final Logger log = LoggerFactory.getLogger(UserDaoImpl.class);
 
+    private final SessionFactory sessionFactory;
+
+    public UserDaoImpl() {
+        this.sessionFactory = HibernateUtil.getSessionFactory();
+    }
+
+    public UserDaoImpl(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
     @Override
     public Long save(User user) {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = this.sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             session.persist(user);
             transaction.commit();
@@ -40,7 +51,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Optional<User> findById(Long id) {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = this.sessionFactory.openSession()) {
             return Optional.ofNullable(session.get(User.class, id));
         } catch (Exception e) {
             log.error(getErrorDaoFindById(id), e);
@@ -50,7 +61,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> findAll() {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = this.sessionFactory.openSession()) {
             var cb = session.getCriteriaBuilder();
             var cq = cb.createQuery(User.class);
             cq.from(User.class);
@@ -65,7 +76,7 @@ public class UserDaoImpl implements UserDao {
     public void update(User user) {
         Long id = user.getId();
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = this.sessionFactory.openSession()) {
             transaction = session.beginTransaction();
 
             int updatedRows = session.createMutationQuery(
@@ -104,7 +115,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void deleteById(Long id) {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = this.sessionFactory.openSession()) {
             transaction = session.beginTransaction();
 
             int deletedRows = session.createMutationQuery("delete from User where id = :id")
