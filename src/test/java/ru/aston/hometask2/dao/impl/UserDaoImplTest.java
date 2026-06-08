@@ -6,6 +6,7 @@ import ru.aston.hometask2.dao.BaseIntegrationTest;
 import ru.aston.hometask2.exception.impl.UserNotFoundException;
 import ru.aston.hometask2.models.User;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -38,6 +39,24 @@ class UserDaoImplTest extends BaseIntegrationTest {
     }
 
     @Test
+    void save_ShouldThrowRuntimeException_WhenEmailAlreadyExists() {
+        User user1 = User.builder()
+                .name("Первый")
+                .email("same_email@mail.ru")
+                .age(30)
+                .build();
+        userDao.save(user1);
+
+        User user2 = User.builder()
+                .name("Второй")
+                .email("same_email@mail.ru")
+                .age(25)
+                .build();
+
+        assertThrows(RuntimeException.class, () -> userDao.save(user2));
+    }
+
+    @Test
     void findById_ShouldReturnUser_WhenUserExists() {
         User user = User.builder().name("Роуз").email("rose@mail.ru").age(22).build();
         Long id = userDao.save(user);
@@ -53,6 +72,21 @@ class UserDaoImplTest extends BaseIntegrationTest {
         Optional<User> foundUser = userDao.findById(999999L);
 
         assertTrue(foundUser.isEmpty());
+    }
+
+    @Test
+    void findAll_ShouldReturnAllPersistedUsers() {
+        assertTrue(userDao.findAll().isEmpty());
+        User user1 = User.builder().name("Пользователь 1").email("user1@mail.ru").age(20).build();
+        User user2 = User.builder().name("Пользователь 2").email("user2@mail.ru").age(30).build();
+        userDao.save(user1);
+        userDao.save(user2);
+
+        List<User> users = userDao.findAll();
+
+        assertEquals(2, users.size());
+        assertTrue(users.contains(user1));
+        assertTrue(users.contains(user2));
     }
 
     @Test
@@ -76,6 +110,20 @@ class UserDaoImplTest extends BaseIntegrationTest {
         User nonExistingUser = User.builder().id(999999L).name("NotFound").email("not_found@mail.ru").age(30).build();
 
         assertThrows(UserNotFoundException.class, () -> userDao.update(nonExistingUser));
+    }
+
+    @Test
+    void update_ShouldThrowRuntimeException_WhenTargetEmailAlreadyExists() {
+        User user1 = User.builder().name("Иван").email("ivan@mail.ru").age(30).build();
+        User user2 = User.builder().name("Петр").email("petr@mail.ru").age(25).build();
+
+        Long id1 = userDao.save(user1);
+        Long id2 = userDao.save(user2);
+
+        User userToUpdate = userDao.findById(id2).orElseThrow();
+        userToUpdate.setEmail("ivan@mail.ru");
+
+        assertThrows(RuntimeException.class, () -> userDao.update(userToUpdate));
     }
 
     @Test

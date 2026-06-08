@@ -92,6 +92,9 @@ public class UserServiceImpl implements UserService {
         if (isIncorrectName(user.getName())) {
             throw new UserValidationException(ERROR_NAME_EMPTY);
         }
+
+        user.setName(user.getName().trim());
+
         if (isIncorrectEmail(user.getEmail())) {
             throw new UserValidationException(ERROR_EMAIL_FORMAT);
         }

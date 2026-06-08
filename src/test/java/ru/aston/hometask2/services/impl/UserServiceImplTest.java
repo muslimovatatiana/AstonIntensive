@@ -74,11 +74,13 @@ public class UserServiceImplTest {
     void registerUser_ShouldPassCorrectUserToDao_WhenHappyPath() {
         User userInService = User.builder().name("  ФИО  ").email("new@mail.ru").age(25).build();
         when(userDao.save(userInService)).thenReturn(55L);
-        userService.registerUser(userInService);
+        Long generatedId = userService.registerUser(userInService);
+        assertEquals(55L, generatedId);
+
         verify(userDao).save(userCaptor.capture());
         User capturedUser = userCaptor.getValue();
 
-        assertEquals("  ФИО  ", capturedUser.getName());
+        assertEquals("ФИО", capturedUser.getName());
         assertEquals("new@mail.ru", capturedUser.getEmail());
         assertEquals(25, capturedUser.getAge());
     }
@@ -171,10 +173,10 @@ public class UserServiceImplTest {
     @Test
     void removeUserById_ShouldPropagateUserNotFoundException_WhenUserDoesNotExist() {
         Long nonExistingId = 999L;
-        doThrow(new ru.aston.hometask2.exception.impl.UserNotFoundException("Not found"))
+        doThrow(new UserNotFoundException("Not found"))
                 .when(userDao).deleteById(nonExistingId);
 
-        assertThrows(ru.aston.hometask2.exception.impl.UserNotFoundException.class, () ->
+        assertThrows(UserNotFoundException.class, () ->
                 userService.removeUserById(nonExistingId)
         );
     }
