@@ -11,7 +11,7 @@ public record UserRequestDto(
         String email,
 
         @NotNull(message = "{user.age.not_null}")
-        @Min(value = 0, message = "user.age.min")
-        @Max(value = 150, message = "user.age.max")
+        @Min(value = 0, message = "{user.age.min}")
+        @Max(value = 150, message = "{user.age.max}")
         Integer age
 ) {}
