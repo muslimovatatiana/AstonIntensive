@@ -4,10 +4,11 @@ import lombok.Getter;
 
 @Getter
 public class ResourceNotFoundException extends RuntimeException {
+
     private final Object[] args;
 
     public ResourceNotFoundException(String message, Object... args) {
         super(message);
-        this.args = args;
+        this.args = args != null ? args : new Object[0];
     }
 }
