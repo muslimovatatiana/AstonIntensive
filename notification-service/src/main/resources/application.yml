@@ -1,0 +1,43 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: notification-service
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    topic:
+      user-events: ${USER_EVENTS_TOPIC:user-events-topic}
+
+  mail:
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:1025}
+    from-address: ${SPRING_MAIL_FROM:no-reply@astonintensive.ru}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+        debug: true
+
+notification:
+  templates:
+    create:
+      subject: "\u0410\u043A\u043A\u0430\u0443\u043D\u0442 \u0441\u043E\u0437\u0434\u0430\u043D!"
+      text: "\u0417\u0434\u0440\u0430\u0432\u0441\u0442\u0432\u0443\u0439\u0442\u0435! \u0412\u0430\u0448 \u0430\u043A\u043A\u0430\u0443\u043D\u0442 \u043D\u0430 \u0441\u0430\u0439\u0442\u0435 %s \u0431\u044B\u043B \u0443\u0441\u043F\u0435\u0448\u043D\u043E \u0441\u043E\u0437\u0434\u0430\u043D."
+    delete:
+      subject: "\u0410\u043A\u043A\u0430\u0443\u043D\u0442 \u0443\u0434\u0430\u043B\u0435\u043D!"
+      text: "\u0417\u0434\u0440\u0430\u0432\u0441\u0442\u0432\u0443\u0439\u0442\u0435! \u0412\u0430\u0448 \u0430\u043A\u043A\u0430\u0443\u043D\u0442 \u0431\u044B\u043B \u0443\u0434\u0430\u043B\u0451\u043D."
+  variables:
+    site-name: ${SITE_NAME:your-site}
+
+logging:
+  level:
+    root: INFO
+    ru.aston.hometask5: DEBUG
+    org.springframework.kafka: DEBUG
+    org.springframework.mail: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

@@ -1,0 +1,52 @@
+server:
+  port: 8081
+
+app:
+  scheduler:
+    outbox-delay: ${OUTBOX_SCHEDULER_DELAY:30000}
+
+spring:
+  application:
+    name: user-service
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/user_service_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    default-schema: spring
+    liquibase-schema: public
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: spring
+        format_sql: true
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      properties:
+        spring.json.add.type.headers: true
+    topic:
+      user-events: ${USER_EVENTS_TOPIC:user-events-topic}
+      partitions: ${USER_EVENTS_TOPIC_PARTITIONS:1}
+      replication-factor: ${USER_EVENTS_TOPIC_REPLICATION:1}
+
+logging:
+  level:
+    root: INFO
+    ru.aston.hometask4: DEBUG
+    org.hibernate.SQL: WARN
+    org.springframework.kafka: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
