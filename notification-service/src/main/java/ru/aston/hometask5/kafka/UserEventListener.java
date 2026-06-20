@@ -17,7 +17,7 @@ public class UserEventListener {
 
     @KafkaListener(
             topics = "${spring.kafka.topic.user-events:user-events-topic}",
-            groupId = "notification-group"
+            groupId = "${spring.kafka.consumer.group-id:notification-group}"
     )
 
     public void listenUserEvents(UserEvent event) {
