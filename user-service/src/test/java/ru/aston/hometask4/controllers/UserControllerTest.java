@@ -1,6 +1,7 @@
 package ru.aston.hometask4.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -25,7 +26,10 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,7 +47,7 @@ class UserControllerTest {
     @MockitoBean
     private UserService userService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Test
     void shouldCreateUserWhenValid() throws Exception {
@@ -57,7 +61,11 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(generatedId.toString()));
+                .andExpect(jsonPath("$.id").value(generatedId.toString()))
+                .andExpect(jsonPath("$._links.self.href").value("http://localhost/api/v1/users/" + generatedId))
+                .andExpect(jsonPath("$._links.update.href").value("http://localhost/api/v1/users/" + generatedId))
+                .andExpect(jsonPath("$._links.delete.href").value("http://localhost/api/v1/users/" + generatedId))
+                .andExpect(jsonPath("$._links.all-users.href").value("http://localhost/api/v1/users"));
 
         Mockito.verify(userService).createUser(requestDto);
     }
@@ -71,7 +79,8 @@ class UserControllerTest {
 
         mockMvc.perform(get("/api/v1/users/{id}", userId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(userId.toString()));
+                .andExpect(jsonPath("$.id").value(userId.toString()))
+                .andExpect(jsonPath("$._links.self.href").value("http://localhost/api/v1/users/" + userId));
     }
 
     @Test
@@ -83,8 +92,10 @@ class UserControllerTest {
 
         mockMvc.perform(get("/api/v1/users"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id").value(userId.toString()));
+                .andExpect(jsonPath("$._embedded.userResponseDtoList", hasSize(1)))
+                .andExpect(jsonPath("$._embedded.userResponseDtoList[0].id").value(userId.toString()))
+                .andExpect(jsonPath("$._embedded.userResponseDtoList[0]._links.self.href").value("http://localhost/api/v1/users/" + userId))
+                .andExpect(jsonPath("$._links.self.href").value("http://localhost/api/v1/users"));
     }
 
     @Test
@@ -98,7 +109,9 @@ class UserControllerTest {
         mockMvc.perform(put("/api/v1/users/{id}", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userId.toString()))
+                .andExpect(jsonPath("$._links.self.href").value("http://localhost/api/v1/users/" + userId));
 
         Mockito.verify(userService).updateUser(userId, requestDto);
     }

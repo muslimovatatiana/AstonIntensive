@@ -9,6 +9,9 @@ spring:
   application:
     name: user-service
 
+  config:
+    import: classpath:messages.properties
+
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/user_service_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
@@ -50,3 +53,9 @@ logging:
     org.springframework.kafka: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+springdoc:
+  api-docs:
+    resolve-schema-properties: true
+  swagger-ui:
+    with-credentials: true
