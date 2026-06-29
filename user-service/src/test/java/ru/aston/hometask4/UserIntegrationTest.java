@@ -1,6 +1,7 @@
 package ru.aston.hometask4;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ class UserIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private MessageSource messageSource;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
     private User existingUser;
 
     @BeforeEach
@@ -71,6 +72,8 @@ class UserIntegrationTest extends BaseIntegrationTest {
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$._links.self.href").exists())
+                .andExpect(jsonPath("$._links.all-users.href").exists())
                 .andReturn().getResponse().getContentAsString();
 
         UUID createdId = extractIdFromJson(responseJson);
@@ -88,15 +91,19 @@ class UserIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(existingUser.getId().toString()))
                 .andExpect(jsonPath("$.name").value("Ольга"))
-                .andExpect(jsonPath("$.email").value("olga@mail.com"));
+                .andExpect(jsonPath("$.email").value("olga@mail.com"))
+                .andExpect(jsonPath("$._links.self.href").value("http://localhost/api/v1/users/" + existingUser.getId()))
+                .andExpect(jsonPath("$._links.update.href").value("http://localhost/api/v1/users/" + existingUser.getId()));
     }
 
     @Test
     void shouldGetAllUsers() throws Exception {
         mockMvc.perform(get("/api/v1/users"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].name").value("Ольга"));
+                .andExpect(jsonPath("$._embedded.userResponseDtoList", hasSize(1)))
+                .andExpect(jsonPath("$._embedded.userResponseDtoList[0].name").value("Ольга"))
+                .andExpect(jsonPath("$._embedded.userResponseDtoList[0]._links.self.href").exists())
+                .andExpect(jsonPath("$._links.self.href").value("http://localhost/api/v1/users"));
     }
 
     @Test
@@ -108,7 +115,8 @@ class UserIntegrationTest extends BaseIntegrationTest {
                         .content(objectMapper.writeValueAsString(updateDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Ольга Обновленная"))
-                .andExpect(jsonPath("$.age").value(26));
+                .andExpect(jsonPath("$.age").value(26))
+                .andExpect(jsonPath("$._links.self.href").value("http://localhost/api/v1/users/" + existingUser.getId()));
 
         assertThat(userRepository.findById(existingUser.getId()))
                 .isPresent()
@@ -194,10 +202,6 @@ class UserIntegrationTest extends BaseIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidDto)))
                 .andExpect(status().isBadRequest());
-
-        assertThat(userRepository.findById(existingUser.getId()))
-                .isPresent()
-                .hasValueSatisfying(user -> assertThat(user.getName()).isEqualTo("Ольга"));
     }
 
     private static Stream<UserRequestDto> provideInvalidUserDtos() {

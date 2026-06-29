@@ -11,7 +11,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
-                "spring.liquibase.liquibase-schema=public"
+                "spring.liquibase.liquibase-schema=public",
+                "springdoc.api-docs.enabled=false",
+                "springdoc.swagger-ui.enabled=false"
         }
 )
 @AutoConfigureMockMvc
