@@ -14,7 +14,7 @@ spring:
       mvc:
         routes:
           - id: notification-service-route
-            uri: lb://notification-service
+            uri: "http://notification-service:8082"
             predicates:
               - Path=/api/v1/notifications/**
 
