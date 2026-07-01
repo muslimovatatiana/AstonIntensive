@@ -11,6 +11,17 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
+                "spring.cloud.config.enabled=false",
+                "eureka.client.enabled=false",
+
+                "app.services.notification-url=http://localhost:8082",
+
+                "app.notification.templates.create.subject=Test Create Subject",
+                "app.notification.templates.create.text=Test Create Text %s",
+                "app.notification.templates.delete.subject=Test Delete Subject",
+                "app.notification.templates.delete.text=Test Delete Text",
+                "app.notification.variables.site-name=test-site",
+
                 "spring.liquibase.liquibase-schema=public",
                 "springdoc.api-docs.enabled=false",
                 "springdoc.swagger-ui.enabled=false"

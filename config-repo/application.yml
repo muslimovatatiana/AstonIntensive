@@ -1,11 +1,6 @@
-app:
-  notification:
-    templates:
-      create:
-        subject: "Аккаунт создан!"
-        text: "Здравствуйте! Ваш аккаунт на сайте %s был успешно создан."
-      delete:
-        subject: "Аккаунт удален!"
-        text: "Здравствуйте! Ваш аккаунт был удалён."
-    variables:
-      site-name: ${SITE_NAME:your-site}
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
+  instance:
+    prefer-ip-address: true

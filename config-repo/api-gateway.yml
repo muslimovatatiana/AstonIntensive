@@ -1,8 +1,3 @@
-app:
-  services:
-    user-service-url: "http://user-service:8081"
-    user-service-path: "/api/v1/users/**"
-
 server:
   port: 8085
 
@@ -13,12 +8,11 @@ spring:
     gateway:
       mvc:
         routes:
+          - id: user-service-route
+            uri: "lb://USER-SERVICE"
+            predicates:
+              - Path=/api/v1/users/**
           - id: notification-service-route
-            uri: "http://notification-service:8082"
+            uri: "lb://NOTIFICATION-SERVICE"
             predicates:
               - Path=/api/v1/notifications/**
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://discovery-server:8761/eureka/

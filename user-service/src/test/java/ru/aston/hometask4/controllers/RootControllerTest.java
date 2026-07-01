@@ -13,6 +13,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(RootController.class)
 @TestPropertySource(properties = {
+        "spring.cloud.config.enabled=false",
+        "eureka.client.enabled=false",
+
         "springdoc.api-docs.enabled=false",
         "springdoc.swagger-ui.enabled=false"
 })
