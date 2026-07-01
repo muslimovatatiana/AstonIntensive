@@ -5,7 +5,7 @@ app:
   scheduler:
     outbox-delay: ${OUTBOX_SCHEDULER_DELAY:30000}
   services:
-    notification-url: "http://notification-service/api/v1/notifications"
+    notification-url: "http://notification-service"
 
 spring:
   application:
