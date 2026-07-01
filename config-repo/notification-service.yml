@@ -24,17 +24,6 @@ spring:
             enable: false
         debug: true
 
-notification:
-  templates:
-    create:
-      subject: "Аккаунт создан!"
-      text: "Здравствуйте! Ваш аккаунт на сайте %s был успешно создан."
-    delete:
-      subject: "Аккаунт удален!"
-      text: "Здравствуйте! Ваш аккаунт был удалён."
-  variables:
-    site-name: ${SITE_NAME:your-site}
-
 logging:
   level:
     root: INFO
