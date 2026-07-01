@@ -13,10 +13,6 @@ spring:
     gateway:
       mvc:
         routes:
-          - id: user-service-route
-            uri: lb://user-service
-            predicates:
-              - Path=/api/v1/users/**
           - id: notification-service-route
             uri: lb://notification-service
             predicates:
