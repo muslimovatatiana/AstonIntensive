@@ -4,6 +4,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 import ru.aston.hometask4.exceptions.InvalidNotificationActionException;
 import ru.aston.hometask4.models.UserAction;
@@ -13,6 +14,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@RefreshScope
 public class NotificationFeignClient {
 
     private static final String LOG_FEIGN_CALL = "Calling OpenFeign to send sync email to: {}";

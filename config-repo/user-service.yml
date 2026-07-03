@@ -1,6 +1,15 @@
 server:
   port: 8081
 
+eureka:
+  client:
+    refresh:
+      enable: false
+    service-url:
+      defaultZone: "http://discovery-server:8761/eureka/"
+  instance:
+    prefer-ip-address: true
+
 app:
   scheduler:
     outbox-delay: ${OUTBOX_SCHEDULER_DELAY:30000}
@@ -13,11 +22,25 @@ logging:
     ru.aston.hometask4: DEBUG
     org.hibernate.SQL: WARN
     org.springframework.kafka: INFO
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
 
 resilience4j:
   circuitbreaker:
     instances:
       notificationServiceCB:
-        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 6
+        minimumNumberOfCalls: 4
         failureRateThreshold: 50
-        waitDurationInOpenState: 10000
+        waitDurationInOpenState: 5000
+        recordExceptions:
+          - java.lang.Exception
+          - feign.FeignException
+          - org.springframework.cloud.client.discovery.DiscoveryClient
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "refresh,health"
