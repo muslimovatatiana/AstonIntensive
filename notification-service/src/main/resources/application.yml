@@ -2,35 +2,4 @@ spring:
   application:
     name: notification-service
   config:
-    import: "optional:configserver:http://config-server:8888"
-
-  kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
-    consumer:
-      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:notification-group}
-    topic:
-      user-events: ${USER_EVENTS_TOPIC:user-events-topic}
-
-  mail:
-    host: ${SPRING_MAIL_HOST:mailpit}
-    port: ${SPRING_MAIL_PORT:1025}
-    from-address: ${SPRING_MAIL_FROM:no-reply@astonintensive.ru}
-    properties:
-      mail:
-        smtp:
-          auth: false
-          starttls:
-            enable: false
-        debug: true
-
-app:
-  notification:
-    templates:
-      create:
-        subject: "Аккаунт создан!"
-        text: "Здравствуйте! Ваш аккаунт на сайте %s был успешно создан."
-      delete:
-        subject: "Аккаунт удален!"
-        text: "Здравствуйте! Ваш аккаунт был удалён."
-    variables:
-      site-name: ${SITE_NAME:your-site}
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"

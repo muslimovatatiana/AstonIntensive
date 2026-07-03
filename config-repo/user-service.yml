@@ -1,20 +1,21 @@
 server:
   port: 8081
 
-eureka:
-  client:
-    refresh:
-      enable: false
-    service-url:
-      defaultZone: "http://discovery-server:8761/eureka/"
-  instance:
-    prefer-ip-address: true
-
 app:
   scheduler:
     outbox-delay: ${OUTBOX_SCHEDULER_DELAY:30000}
   services:
     notification-url: "http://NOTIFICATION-SERVICE"
+  notification:
+    templates:
+      create:
+        subject: "Аккаунт создан!"
+        text: "Здравствуйте! Ваш аккаунт на сайте %s был успешно создан."
+      delete:
+        subject: "Аккаунт удален!"
+        text: "Здравствуйте! Ваш аккаунт был удалён."
+    variables:
+      site-name: ${SITE_NAME:your-site}
 
 logging:
   level:
@@ -37,7 +38,6 @@ resilience4j:
         recordExceptions:
           - java.lang.Exception
           - feign.FeignException
-          - org.springframework.cloud.client.discovery.DiscoveryClient
 
 management:
   endpoints:

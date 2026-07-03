@@ -12,15 +12,11 @@ spring:
             - id: user-service-route
               uri: lb://USER-SERVICE
               predicates:
-                - Path=/api/v1/users/**
+                - Path=/api/v1/users/**, /actuator/**
             - id: notification-service-route
               uri: lb://NOTIFICATION-SERVICE
               predicates:
                 - Path=/api/v1/notifications/**
-            - id: user-service-actuator
-              uri: lb://USER-SERVICE
-              predicates:
-                - Path=/actuator/**
 
 logging:
   level:
