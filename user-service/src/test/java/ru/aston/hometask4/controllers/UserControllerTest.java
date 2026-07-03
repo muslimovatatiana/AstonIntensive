@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.aston.hometask4.dto.UserRequestDto;
 import ru.aston.hometask4.dto.UserResponseDto;
 import ru.aston.hometask4.exceptions.ResourceNotFoundException;
+import ru.aston.hometask4.models.UserAction;
 import ru.aston.hometask4.services.UserService;
 
 import java.time.LocalDateTime;
@@ -38,6 +39,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         DataSourceAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class,
         LiquibaseAutoConfiguration.class
+})
+@org.springframework.test.context.TestPropertySource(properties = {
+        "spring.cloud.config.enabled=false",
+        "eureka.client.enabled=false"
 })
 class UserControllerTest {
 
@@ -152,6 +157,38 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidDto)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldSendDirectNotificationSuccessfully() throws Exception {
+        Mockito.doNothing().when(userService).sendDirectNotification(UserAction.CREATE, "ivan@mail.com");
+
+        mockMvc.perform(post("/api/v1/users/notify")
+                        .param("action", "CREATE")
+                        .param("email", "ivan@mail.com"))
+                .andExpect(status().isOk());
+
+        Mockito.verify(userService).sendDirectNotification(UserAction.CREATE, "ivan@mail.com");
+    }
+
+    @Test
+    void shouldReturn400WhenSendNotificationWithInvalidAction() throws Exception {
+        mockMvc.perform(post("/api/v1/users/notify")
+                        .param("action", "INVALID")
+                        .param("email", "ivan@mail.com"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturn500WhenServiceThrowsUnexpectedException() throws Exception {
+        Mockito.doThrow(new RuntimeException("Database timeout or unexpected error"))
+                .when(userService).sendDirectNotification(UserAction.CREATE, "ivan@mail.com");
+
+        mockMvc.perform(post("/api/v1/users/notify")
+                        .param("action", "CREATE")
+                        .param("email", "ivan@mail.com"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value("Internal server error. Please try again later."));
     }
 
     private static Stream<UserRequestDto> provideInvalidUserDtos() {

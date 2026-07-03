@@ -1,0 +1,44 @@
+server:
+  port: 8082
+
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:localhost}:9092
+    consumer:
+      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:notification-group}
+      auto-offset-reset: earliest
+    topic:
+      user-events: ${USER_EVENTS_TOPIC:user-events-topic}
+
+  mail:
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:1025}
+    from-address: ${SPRING_MAIL_FROM:no-reply@astonintensive.ru}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+        debug: true
+
+app:
+  notification:
+    templates:
+      create:
+        subject: "Аккаунт создан!"
+        text: "Здравствуйте! Ваш аккаунт на сайте %s был успешно создан."
+      delete:
+        subject: "Аккаунт удален!"
+        text: "Здравствуйте! Ваш аккаунт был удалён."
+    variables:
+      site-name: ${SITE_NAME:your-site}
+
+logging:
+  level:
+    root: INFO
+    ru.aston.hometask5: DEBUG
+    org.springframework.kafka: DEBUG
+    org.springframework.mail: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

@@ -12,6 +12,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.aston.hometask4.dto.NotificationRequestDto;
 import ru.aston.hometask4.dto.UserRequestDto;
 import ru.aston.hometask4.dto.UserResponseDto;
 import ru.aston.hometask4.services.UserService;
@@ -102,6 +103,18 @@ public class UserController {
             @PathVariable @Parameter(description = "${swagger.param.id}", example = "123e4567-e89b-12d3-a456-426614174000") UUID id) {
         userService.deleteUserById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/notify")
+    @Operation(summary = "${swagger.op.notify.summary}", description = "${swagger.op.notify.desc}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "${swagger.resp.notify.200}"),
+            @ApiResponse(responseCode = "400", description = "${swagger.resp.notify.400}"),
+            @ApiResponse(responseCode = "500", description = "${swagger.resp.notify.500}")
+    })
+    public ResponseEntity<Void> sendDirectNotification(@Valid @RequestBody NotificationRequestDto requestDto) {
+        userService.sendDirectNotification(requestDto.action(), requestDto.email());
+        return ResponseEntity.ok().build();
     }
 
     private EntityModel<UserResponseDto> toEntityModel(UserResponseDto dto) {

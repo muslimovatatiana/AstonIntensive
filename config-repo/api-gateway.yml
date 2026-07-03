@@ -1,0 +1,27 @@
+server:
+  port: 8085
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          httpclient:
+            wiretap: true
+          routes:
+            - id: user-service-route
+              uri: lb://USER-SERVICE
+              predicates:
+                - Path=/api/v1/users/**, /actuator/**
+            - id: notification-service-route
+              uri: lb://NOTIFICATION-SERVICE
+              predicates:
+                - Path=/api/v1/notifications/**
+
+logging:
+  level:
+    org.springframework.web.reactive: TRACE
+    org.springframework.cloud.gateway.server.webflux: TRACE
+    org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter: TRACE
+    reactor.netty.http.server.HttpServer: DEBUG
+    reactor.netty.http.client.HttpClient: DEBUG

@@ -1,5 +1,4 @@
 FROM bellsoft/liberica-openjdk-alpine:22
-COPY user-service/target/*.jar app.jar
-ENV TZ=Europe/Moscow
-EXPOSE 8081
+COPY config-server/target/*.jar app.jar
+EXPOSE 8888
 ENTRYPOINT ["java", "-jar", "/app.jar"]

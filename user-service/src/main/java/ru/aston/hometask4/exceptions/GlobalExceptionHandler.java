@@ -33,6 +33,8 @@ public class GlobalExceptionHandler {
     private static final String LOG_INTEGRITY_VIOLATION = "Database constraint violation: {}. Sent localized response: {}";
     private static final String LOG_UNCAUGHT_EXCEPTION = "An unexpected error occurred on the server: ";
 
+    private static final String LOG_INVALID_ACTION = "Invalid notification action. Key: {}, Args: {}. Localized message: {}";
+
     private final MessageSource messageSource;
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -89,5 +91,22 @@ public class GlobalExceptionHandler {
 
         Map<String, String> error = Map.of(ERROR_KEY_MESSAGE, MSG_INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(InvalidNotificationActionException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidNotificationActionException(InvalidNotificationActionException ex) {
+        Locale currentLocale = LocaleContextHolder.getLocale();
+
+        String localizedMessage = messageSource.getMessage(
+                ex.getMessage(),
+                ex.getArgs(),
+                ex.getMessage(),
+                currentLocale
+        );
+
+        log.warn(LOG_INVALID_ACTION, ex.getMessage(), ex.getArgs(), localizedMessage);
+
+        Map<String, String> error = Map.of(ERROR_KEY_MESSAGE, localizedMessage);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }

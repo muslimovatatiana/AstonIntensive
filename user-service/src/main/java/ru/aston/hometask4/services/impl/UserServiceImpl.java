@@ -1,8 +1,10 @@
 package ru.aston.hometask4.services.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.aston.hometask4.clients.NotificationFeignClient;
 import ru.aston.hometask4.dto.UserRequestDto;
 import ru.aston.hometask4.dto.UserResponseDto;
 import ru.aston.hometask4.exceptions.ResourceNotFoundException;
@@ -17,6 +19,7 @@ import ru.aston.hometask4.services.UserService;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -26,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final OutboxEventRepository outboxEventRepository;
     private final UserMapper userMapper;
+    private final NotificationFeignClient notificationFeignClient;
 
     @Override
     @Transactional
@@ -66,6 +70,11 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_KEY, id));
         userRepository.delete(user);
         saveOutboxEvent(UserAction.DELETE, user.getEmail());
+    }
+
+    @Override
+    public void sendDirectNotification(UserAction action, String email) {
+        notificationFeignClient.sendDirectNotification(action, email);
     }
 
     private void saveOutboxEvent(UserAction action, String email) {

@@ -1,0 +1,46 @@
+server:
+  port: 8081
+
+app:
+  scheduler:
+    outbox-delay: ${OUTBOX_SCHEDULER_DELAY:30000}
+  services:
+    notification-url: "http://NOTIFICATION-SERVICE"
+  notification:
+    templates:
+      create:
+        subject: "Аккаунт создан!"
+        text: "Здравствуйте! Ваш аккаунт на сайте %s был успешно создан."
+      delete:
+        subject: "Аккаунт удален!"
+        text: "Здравствуйте! Ваш аккаунт был удалён."
+    variables:
+      site-name: ${SITE_NAME:your-site}
+
+logging:
+  level:
+    root: INFO
+    ru.aston.hometask4: DEBUG
+    org.hibernate.SQL: WARN
+    org.springframework.kafka: INFO
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      notificationServiceCB:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 6
+        minimumNumberOfCalls: 4
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5000
+        recordExceptions:
+          - java.lang.Exception
+          - feign.FeignException
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "refresh,health"
